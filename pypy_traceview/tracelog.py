@@ -1,17 +1,46 @@
+from .opcode import Opcode
+
+
 class TraceLog:
     def __init__(self):
         self.raw_opcodes = []
 
+        self._files = []
+        self._methods = []
+        self._opcodes = []
+
+    def _parse_opcodes(self):
+        files = set()
+        methods = set()
+        opcodes = []
+
+        for line in self.raw_opcodes:
+            method, line = line.split(';')
+            methods.add(method)
+
+            filename, line = line.split(':')
+            files.add(filename)
+
+            opcodes.append(Opcode(line, method=method, filename=filename))
+
+        self._files = list(files)
+        self._methods = list(methods)
+        self._opcodes = opcodes
+
     @property
     def files(self):
-        return list(set([
-            opcode.split(':')[0].split(';')[1]
-            for opcode in self.raw_opcodes
-        ]))
+        if not self._files:
+            self._parse_opcodes()
+        return self._files
 
     @property
     def methods(self):
-        return list(set([
-            opcode.split(';')[0]
-            for opcode in self.raw_opcodes
-        ]))
+        if not self._methods:
+            self._parse_opcodes()
+        return self._methods
+
+    @property
+    def opcodes(self):
+        if not self._opcodes:
+            self._parse_opcodes()
+        return self._opcodes

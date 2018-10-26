@@ -36,6 +36,7 @@ main;add.py:5-7~#19 FOR_ITER
 
     assert log.files == ['add.py']
     assert sorted(log.methods) == ['add', 'main']
+    assert len(log.opcodes) == 19
 
 
 def test_simple_add_mod_loop():
@@ -48,3 +49,4 @@ def test_simple_add_mod_loop():
         assert len(log.raw_opcodes) == 19
         assert log.files == ['add.py']
         assert sorted(log.methods) == ['add', 'main']
+        assert len(log.opcodes) == 19
