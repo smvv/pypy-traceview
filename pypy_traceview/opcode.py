@@ -21,28 +21,47 @@ class Opcode:
         return '<Opcode "{}">'.format(self.name)
 
 
+def count_opcodes(opcodes):
+    count = 0
+
+    for opcode in opcodes:
+        if isinstance(opcode, list):
+            count += count_opcodes(opcode)
+        else:
+            count += 1
+
+    return count
+
+
 def group_opcodes(opcodes):
     if not opcodes:
         return []
 
     groups = []
 
-    last = opcodes[0]
-    group = [last]
+    last = None
+    group = []
 
-    for opcode in opcodes[1:]:
-        if opcode.code_line == last.code_line:
+    for opcode in opcodes:
+        if isinstance(opcode, list):
+            if group:
+                groups.append(group)
+            groups.append(group_opcodes(opcode))
+            group = []
+            last = None
+        elif not last or opcode.code_line == last.code_line:
             group.append(opcode)
+            last = opcode
         else:
-            assert group
-            groups.append(group)
+            if group:
+                groups.append(group)
             group = [opcode]
             last = opcode
 
     if group:
         groups.append(group)
 
-    assert sum(map(len, groups)) == len(opcodes)
+    assert count_opcodes(groups) == count_opcodes(opcodes)
 
     return groups
 

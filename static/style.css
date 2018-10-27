@@ -30,3 +30,8 @@ pre {
 .opcodes {
     margin-bottom: 1rem;
 }
+
+.indented {
+    padding-left: 20px;
+    border-left: 1px solid #ccc;
+}
