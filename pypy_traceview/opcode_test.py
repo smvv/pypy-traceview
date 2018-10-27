@@ -58,55 +58,61 @@ def test_indent_basic_opcodes():
     # This test expects the following indentation of opcodes:
     #
     # 0  <Opcode "FOR_ITER">
-    # 1  0  <Opcode "STORE_FAST">
-    #    1  <Opcode "LOAD_FAST">
-    #    2  <Opcode "LOAD_GLOBAL">
+    # 1  <Opcode "STORE_FAST">
+    # 1  0  <Opcode "LOAD_FAST">
+    #    1  <Opcode "LOAD_GLOBAL">
+    #    2  <Opcode "LOAD_FAST">
     #    3  <Opcode "LOAD_FAST">
-    #    4  <Opcode "LOAD_FAST">
-    #    5  <Opcode "LOAD_CONST">
-    #    6  <Opcode "BINARY_MODULO">
-    #    7  <Opcode "CALL_FUNCTION">
-    #    8  0 <Opcode "LOAD_FAST">
+    #    4  <Opcode "LOAD_CONST">
+    #    5  <Opcode "BINARY_MODULO">
+    #    6  <Opcode "CALL_FUNCTION">
+    #    7  0 <Opcode "LOAD_FAST">
     #       1 <Opcode "LOAD_FAST">
     #       2 <Opcode "BINARY_ADD">
     #       3 <Opcode "RETURN_VALUE">
-    #    9  <Opcode "LOAD_CONST">
-    #    10 <Opcode "BINARY_MODULO">
-    #    11 <Opcode "INPLACE_ADD">
-    #    12 <Opcode "STORE_FAST">
-    #    13 <Opcode "JUMP_ABSOLUTE">
+    #    8  <Opcode "LOAD_CONST">
+    #    9  <Opcode "BINARY_MODULO">
+    #    10 <Opcode "INPLACE_ADD">
+    #    11 <Opcode "STORE_FAST">
+    #    12 <Opcode "JUMP_ABSOLUTE">
 
     indented = indent_opcodes(basic_opcodes)
     dump_indentend_opcodes(indented)
 
-    assert len(indented) == 2
-    assert indented[0].name == 'FOR_ITER'
-    assert isinstance(indented[1], list)
-    assert len(indented[1]) == 14
-    assert indented[1][-1].name == 'JUMP_ABSOLUTE'
+    assert len(indented) == 3
 
-    assert isinstance(indented[1][8], list)
-    assert len(indented[1][8]) == 4
-    assert indented[1][8][-1].name == 'RETURN_VALUE'
+    assert indented[0].name == 'FOR_ITER'
+    assert indented[1].name == 'STORE_FAST'
+
+    assert isinstance(indented[2], list)
+    loop_block = indented[2]
+
+    assert len(loop_block) == 13
+    assert loop_block[-1].name == 'JUMP_ABSOLUTE'
+
+    function_body = loop_block[7]
+    assert isinstance(function_body, list)
+    assert len(function_body) == 4
+    assert function_body[-1].name == 'RETURN_VALUE'
 
 
 def test_group_indented_basic_opcodes():
     # This test expects the following groups of indented opcodes:
     #
-    # 0 [ <Opcode "FOR_ITER">]
-    # 1 0 [ <Opcode "STORE_FAST"> ]
-    #   1 [ <Opcode "LOAD_FAST">
+    # 0 [ <Opcode "FOR_ITER">
+    #     <Opcode "STORE_FAST"> ]
+    # 1 0 [ <Opcode "LOAD_FAST">
     #       <Opcode "LOAD_GLOBAL">
     #       <Opcode "LOAD_FAST">
     #       <Opcode "LOAD_FAST">
     #       <Opcode "LOAD_CONST">
     #       <Opcode "BINARY_MODULO">
     #       <Opcode "CALL_FUNCTION"> ]
-    #   2   [ <Opcode "LOAD_FAST">
+    #   1 0 [ <Opcode "LOAD_FAST">
     #         <Opcode "LOAD_FAST">
     #         <Opcode "BINARY_ADD">
     #         <Opcode "RETURN_VALUE"> ]
-    #   3 [ <Opcode "LOAD_CONST">
+    #   2 [ <Opcode "LOAD_CONST">
     #       <Opcode "BINARY_MODULO">
     #       <Opcode "INPLACE_ADD">
     #       <Opcode "STORE_FAST">
@@ -115,11 +121,17 @@ def test_group_indented_basic_opcodes():
     indented = indent_opcodes(basic_opcodes)
     groups = group_opcodes(indented)
     assert len(groups) == 2
-    assert len(groups[1]) == 4
 
-    assert len(groups[1][2]) == 1
-    assert groups[1][2][0][0].name == 'LOAD_FAST'
-    assert groups[1][2][0][-1].name == 'RETURN_VALUE'
+    loop_header = groups[0]
+    assert len(loop_header) == 2
 
-    assert groups[1][3][0].name == 'LOAD_CONST'
-    assert groups[1][3][-1].name == 'JUMP_ABSOLUTE'
+    loop_body = groups[1]
+    assert len(loop_body) == 3
+
+    function_body = loop_body[1]
+    assert len(function_body) == 1
+    assert function_body[0][0].name == 'LOAD_FAST'
+    assert function_body[0][-1].name == 'RETURN_VALUE'
+
+    assert loop_body[2][0].name == 'LOAD_CONST'
+    assert loop_body[2][-1].name == 'JUMP_ABSOLUTE'

@@ -85,6 +85,15 @@ def indent_opcodes(opcodes):
             last = opcode
             continue
 
+        # Move opcode STORE_FAST after a FOR_ITER into the FOR_ITER scope. This
+        # avoids having the same "for i in ..." code snippet inside the loop
+        # block.
+        if opcode.name == 'STORE_FAST' and last and last.name == 'FOR_ITER':
+            assert level > 0
+            stack[level - 1].append(opcode)
+            last = opcode
+            continue
+
         stack[level].append(opcode)
 
         if opcode.name == 'FOR_ITER' or opcode.name == 'CALL_FUNCTION':
