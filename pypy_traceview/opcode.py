@@ -16,6 +16,12 @@ class Opcode:
         self.filename = filename
 
         self.snippet = None
+        self.method_snippet = None
+
+        self._init_opcode_flags()
+
+    def _init_opcode_flags(self):
+        self.is_call = self.name in ['CALL_FUNCTION']
 
     def __repr__(self):
         return '<Opcode "{}">'.format(self.name)

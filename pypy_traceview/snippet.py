@@ -21,6 +21,8 @@ def find_snippet(filename, line):
 
 def resolve_code_snippets(traces, search_paths):
     for trace in traces:
+        last = None
+
         for opcode in trace.opcodes:
             filename = find_file(opcode.filename, search_paths)
 
@@ -29,3 +31,11 @@ def resolve_code_snippets(traces, search_paths):
                 snippet = find_snippet(filename, opcode.code_line)
 
             opcode.snippet = snippet
+
+            # The first instruction after a function call sets the inlined
+            # functoin location for the caller.
+            if last and last.is_call and filename:
+                snippet = find_snippet(filename, opcode.func_line)
+                last.method_snippet = snippet
+
+            last = opcode

@@ -18,6 +18,12 @@ def render_group(group, doc, tag, text, line):
             with tag('div', klass='opcode'):
                 line('div', opcode.name)
 
+    # Add a comment about inlined code to improve reading control flow.
+    if group[-1].is_call:
+        comment = '\n# inlined from {}'
+        snippet = comment.format(group[-1].method_snippet)
+        doc.asis(highlight(snippet, PythonLexer(), HtmlFormatter()))
+
 
 def render_indented_opcodes(groups, doc, tag, text, line):
     for group in groups:
