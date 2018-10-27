@@ -27,8 +27,12 @@ pre {
     margin: 0;
 }
 
-.opcodes {
-    margin-bottom: 1rem;
+.hidden {
+    display: none;
+}
+
+.opcodes:not(.hidden) + .highlight {
+    margin-top: 1rem;
 }
 
 .indented {
