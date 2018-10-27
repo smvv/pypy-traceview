@@ -1,0 +1,10 @@
+{
+  "name": "pypy-traceview",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Sander Mathijs van Veen <smvv@kompiler.org>",
+  "license": "MIT",
+  "dependencies": {
+    "prettier": "^1.14.3"
+  }
+}
