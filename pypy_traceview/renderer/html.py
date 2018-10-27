@@ -30,6 +30,7 @@ def render_indented_opcodes(groups, doc, tag, text, line):
 
 def render_trace(trace, doc, tag, text, line):
     if not trace.opcodes:
+        line('div', 'No opcodes found in trace.', klass='gray')
         return
 
     with tag('a', href='#', onclick='toggleOpcodes(event)'):
@@ -46,7 +47,9 @@ def render(logs):
     doc, tag, text, line = Doc().ttl()
 
     with tag('div', klass='traces'):
-        for trace in logs:
+        for i, trace in enumerate(logs):
+            line('h2', 'Trace #' + str(i + 1))
+
             render_trace(trace, doc, tag, text, line)
 
     html = doc.getvalue()
