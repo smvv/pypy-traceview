@@ -16,3 +16,85 @@ class Opcode:
         self.filename = filename
 
         self.snippet = None
+
+    def __repr__(self):
+        return '<Opcode "{}">'.format(self.name)
+
+
+def group_opcodes(opcodes):
+    if not opcodes:
+        return []
+
+    groups = []
+
+    last = opcodes[0]
+    group = [last]
+
+    for opcode in opcodes[1:]:
+        if opcode.code_line == last.code_line:
+            group.append(opcode)
+        else:
+            assert group
+            groups.append(group)
+            group = [opcode]
+            last = opcode
+
+    if group:
+        groups.append(group)
+
+    assert sum(map(len, groups)) == len(opcodes)
+
+    return groups
+
+
+def dump_indentend_opcodes(stack, indent=0):
+    for children in stack:
+        if isinstance(children, list):
+            dump_indentend_opcodes(children, indent=indent + 1)
+        else:
+            print('  ' * indent + str(children))
+
+
+def indent_opcodes(opcodes):
+    level = 0
+    stack = [[]]
+    last = None
+
+    for opcode in opcodes:
+        # Ignore second FOR_ITER opcode that marks end of for loop.
+        if opcode.name == 'FOR_ITER' and last and last.name == 'JUMP_ABSOLUTE':
+            last = opcode
+            continue
+
+        stack[level].append(opcode)
+
+        if opcode.name == 'FOR_ITER' or opcode.name == 'CALL_FUNCTION':
+            level += 1
+            if len(stack) < level:
+                stack[level] = []
+            else:
+                stack.append([])
+
+            last = opcode
+            continue
+
+        if opcode.name == 'JUMP_ABSOLUTE' or opcode.name == 'RETURN_VALUE':
+            children = stack[level]
+
+            if len(stack) == level + 1:
+                stack.pop()
+            else:
+                stack[level] = []
+
+            level -= 1
+            assert level >= 0
+            stack[level].append(children)
+
+            last = opcode
+            continue
+
+        last = opcode
+
+    assert level == 0
+
+    return stack[0]
