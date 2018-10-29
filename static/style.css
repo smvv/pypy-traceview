@@ -4,7 +4,7 @@ body {
   color: #444;
 
   margin: 0 auto;
-  max-width: 1000px;
+  max-width: 1200px;
   padding: 0 1em 1em;
 }
 
@@ -49,4 +49,47 @@ pre {
 
 .gray {
   color: #aaa;
+}
+
+.trace {
+  display: flex;
+  flex-direction: row;
+}
+
+.trace .code,
+.trace .ir {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-height: 700px;
+}
+
+.trace .code {
+  margin-right: 10px;
+}
+.trace .ir {
+  margin-left: 10px;
+  max-width: 700px;
+  overflow: scroll;
+}
+
+/* Simple color palette for different code/ir lines */
+
+.highlight {
+  background: transparent;
+}
+
+.bg1 {
+  background-color: #eaecff;
+}
+
+.bg2 {
+  background-color: #ffeaea;
+}
+
+.bg3 {
+  background-color: #fcfed4;
+}
+
+.bg4 {
+  background-color: #eaffec;
 }

@@ -8,9 +8,21 @@ from pygments.formatters import HtmlFormatter
 from ..opcode import group_opcodes, indent_opcodes
 
 
+BG_COLORS = ['bg1', 'bg2', 'bg3', 'bg4']
+last_bg_color = len(BG_COLORS) - 1
+
+
+def next_bg_color():
+    global last_bg_color
+    last_bg_color = (last_bg_color + 1) % len(BG_COLORS)
+    return BG_COLORS[last_bg_color]
+
+
 def render_group(group, doc, tag, text, line):
     # Render the Python code snippet.
-    doc.asis(highlight(group[0].snippet, PythonLexer(), HtmlFormatter()))
+    bg_color = next_bg_color()
+    with tag('div', klass=bg_color):
+        doc.asis(highlight(group[0].snippet, PythonLexer(), HtmlFormatter()))
 
     # Render the opcodes corresponding to the code snippet.
     with tag('div', klass='opcodes'):
@@ -34,6 +46,11 @@ def render_indented_opcodes(groups, doc, tag, text, line):
             render_group(group, doc, tag, text, line)
 
 
+def render_ir(trace, doc, tag, text, line):
+    snippet = '\n'.join(trace.raw_ir)
+    doc.asis(highlight(snippet, PythonLexer(), HtmlFormatter()))
+
+
 def render_trace(trace, doc, tag, text, line):
     if not trace.opcodes:
         line('div', 'No opcodes found in trace.', klass='gray')
@@ -44,7 +61,13 @@ def render_trace(trace, doc, tag, text, line):
 
     indented = indent_opcodes(trace.opcodes)
     groups = group_opcodes(indented)
-    render_indented_opcodes(groups, doc, tag, text, line)
+
+    with tag('div', klass='trace'):
+        with tag('div', klass='code'):
+            render_indented_opcodes(groups, doc, tag, text, line)
+
+        with tag('div', klass='ir'):
+            render_ir(trace, doc, tag, text, line)
 
 
 def render(logs):
