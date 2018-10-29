@@ -4,6 +4,7 @@ from .opcode import Opcode
 class TraceLog:
     def __init__(self):
         self.raw_opcodes = []
+        self.raw_ir = []
 
         self._files = []
         self._methods = []

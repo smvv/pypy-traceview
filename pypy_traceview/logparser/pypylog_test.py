@@ -50,3 +50,7 @@ def test_simple_add_mod_loop():
         assert log.files == ['add.py']
         assert sorted(log.methods) == ['add', 'main']
         assert len(log.opcodes) == 19
+
+        assert len(log.raw_ir) == 140
+        assert '# Loop' in log.raw_ir[0]
+        assert '--end of the loop--' in log.raw_ir[-1]

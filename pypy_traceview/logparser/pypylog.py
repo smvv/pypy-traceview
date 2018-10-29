@@ -27,6 +27,14 @@ def is_jit_tracing_end(line):
     return line.endswith('jit-tracing}')
 
 
+def is_jit_log_opt_loop_start(line):
+    return line.endswith('{jit-log-opt-loop')
+
+
+def is_jit_log_opt_loop_end(line):
+    return line.endswith('jit-log-opt-loop}')
+
+
 def is_jit_trace_done_start(line):
     return line.endswith('{jit-trace-done')
 
@@ -40,9 +48,26 @@ def is_jit_starting(line):
 
 
 @trace_step
+def parse_jit_log_opt_loop(line, state):
+    if is_jit_tracing_end(line):
+        return parse_jit_tracing_end
+
+    if is_jit_log_opt_loop_end(line):
+        return parse_jit_tracing_end
+
+    # Collect the successive lines (= PyPy IR).
+    state['log'].raw_ir.append(line)
+
+    return parse_jit_log_opt_loop
+
+
+@trace_step
 def parse_jit_trace_done_start(line, state):
     if is_jit_tracing_end(line):
         return parse_jit_tracing_end
+
+    if is_jit_log_opt_loop_start(line):
+        return parse_jit_log_opt_loop
 
     return parse_jit_trace_done_start
 
@@ -70,6 +95,9 @@ def parse_jit_tracing_start(line, state):
 
     if is_jit_trace_done_start(line):
         return parse_jit_trace_done_start
+
+    if is_jit_log_opt_loop_start(line):
+        return parse_jit_log_opt_loop
 
     # Start a new trace log
     if not state['log']:
