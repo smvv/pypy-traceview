@@ -72,6 +72,10 @@ pre {
   overflow: scroll;
 }
 
+.highlight pre {
+  white-space: pre-wrap;
+}
+
 /* Simple color palette for different code/ir lines */
 
 .highlight {
