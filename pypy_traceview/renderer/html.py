@@ -78,8 +78,12 @@ def render_ir(trace, color_map, doc, tag, text, line):
 
         if group[0].startswith('debug_merge_point'):
             raw_opcode = group[0].split('\'')[1]
-            _, raw_opcode = raw_opcode.split(':')
-            opcode = Opcode(raw_opcode)
+
+            try:
+                _, raw_opcode = raw_opcode.split(':')
+                opcode = Opcode(raw_opcode)
+            except ValueError:
+                pass
 
             # Add a comment sign before the debug_merge_point() to easy
             # reading of the IR.

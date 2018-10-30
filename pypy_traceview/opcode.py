@@ -1,14 +1,17 @@
 class Opcode:
     def __init__(self, opcode, method=None, filename=None):
         parts = opcode.split('~')
-        assert len(parts) == 2, opcode
+        if len(parts) != 2:
+            raise ValueError(opcode)
 
         func_line, code_line = parts[0].split('-')
         self.func_line = int(func_line)
         self.code_line = int(code_line)
 
-        id, name = parts[1].split(' ')
-        assert id[0] == '#', opcode
+        id, name = parts[1].split(' ', 1)
+        if id[0] != '#':
+            raise ValueError(opcode)
+
         self.id = int(id[1:])
         self.name = name
 
@@ -21,7 +24,7 @@ class Opcode:
         self._init_opcode_flags()
 
     def _init_opcode_flags(self):
-        self.is_call = self.name in ['CALL_FUNCTION']
+        self.is_call = self.name in ['CALL_FUNCTION', 'CALL_METHOD']
 
     def __repr__(self):
         return '<Opcode "{}">'.format(self.name)
@@ -102,7 +105,7 @@ def indent_opcodes(opcodes):
 
         stack[level].append(opcode)
 
-        if opcode.name == 'FOR_ITER' or opcode.name == 'CALL_FUNCTION':
+        if opcode.name == 'FOR_ITER' or opcode.is_call:
             level += 1
             if len(stack) < level:
                 stack[level] = []
