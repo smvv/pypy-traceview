@@ -1,15 +1,15 @@
 from pathlib import Path
+from .memoization import memoized
 
 
-# TODO: add memoization here
-def find_file(filename, search_paths):
-    for path in search_paths:
+@memoized
+def find_file(filename, path):
         source_file = Path(path).joinpath(filename)
         if source_file.is_file():
             return source_file
 
 
-# TODO: add memoization here
+@memoized
 def find_snippet(filename, line):
     with open(str(filename)) as f:
         # Find the line in the source file.
@@ -24,7 +24,10 @@ def resolve_code_snippets(traces, search_paths):
         last = None
 
         for opcode in trace.opcodes:
-            filename = find_file(opcode.filename, search_paths)
+            for path in search_paths:
+                filename = find_file(opcode.filename, path)
+                if filename:
+                    break
 
             snippet = '# Source file not found'
             if filename:

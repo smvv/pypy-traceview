@@ -7,6 +7,7 @@ from pygments.formatters import HtmlFormatter
 
 from ..opcode import group_opcodes, indent_opcodes, Opcode
 from ..ir import group_ir
+from ..memoization import memoized
 
 
 BG_COLORS = ['bg1', 'bg2', 'bg3', 'bg4']
@@ -35,11 +36,16 @@ def build_color_map(opcodes):
     return color_map
 
 
+@memoized
+def highlight_snippet(snippet):
+    return highlight(snippet, PythonLexer(), HtmlFormatter())
+
+
 def render_group(group, color_map, doc, tag, text, line):
     # Render the Python code snippet.
     bg_color = color_map[group[0].id]
     with tag('div', klass=bg_color):
-        doc.asis(highlight(group[0].snippet, PythonLexer(), HtmlFormatter()))
+        doc.asis(highlight_snippet(group[0].snippet))
 
     # Render the opcodes corresponding to the code snippet.
     with tag('div', klass='opcodes'):
@@ -51,7 +57,7 @@ def render_group(group, color_map, doc, tag, text, line):
     if group[-1].is_call:
         comment = '\n# inlined from {}'
         snippet = comment.format(group[-1].method_snippet)
-        doc.asis(highlight(snippet, PythonLexer(), HtmlFormatter()))
+        doc.asis(highlight_snippet(snippet))
 
 
 def render_indented_opcodes(groups, color_map, doc, tag, text, line):
@@ -87,7 +93,7 @@ def render_ir(trace, color_map, doc, tag, text, line):
         # Render the IR lines.
         with tag('div', **kwargs):
             snippet = '\n'.join(group)
-            doc.asis(highlight(snippet, PythonLexer(), HtmlFormatter()))
+            doc.asis(highlight_snippet(snippet))
 
         # Set color for next group.
         if opcode:
