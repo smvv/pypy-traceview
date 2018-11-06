@@ -4,6 +4,8 @@ import io
 import cProfile
 import pstats
 
+from pathlib import Path
+
 from pypy_traceview.logparser.pypylog import parse
 from pypy_traceview.snippet import resolve_code_snippets
 from pypy_traceview.renderer.html import render
@@ -32,8 +34,7 @@ def main():
     print('Opening PyPy log file: {}'.format(args.file))
 
     with open(args.file) as f:
-        # TODO
-        search_paths = ['testcases/simple-add-mod-loop']
+        search_paths = [Path(args.file).parent]
 
         print('Parsing PyPy log file')
         traces = parse(f)
