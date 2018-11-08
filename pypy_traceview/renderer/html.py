@@ -117,10 +117,6 @@ def render_ir(trace, color_map, dttl):
 def render_trace(trace, dttl):
     doc, tag, text, line = dttl
 
-    if not trace.opcodes:
-        line('div', 'No opcodes found in trace.', klass='gray')
-        return
-
     with tag('a', href='#', onclick='toggleOpcodes(event)'):
         text('Toggle opcodes')
 

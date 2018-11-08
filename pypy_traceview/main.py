@@ -24,6 +24,27 @@ parser.add_argument('--profile', action='store_true',
                     help='Dump CPU profiler info')
 
 
+def prefilter_trace(trace):
+    """
+    This filter is applied before resolving code snippets.
+    """
+    return trace.opcodes
+
+
+def postfilter_trace(trace):
+    """
+    This filter is applied after resolving code snippets.
+    """
+    return trace.raw_ir
+
+
+def filter_traces(fn, traces):
+    traces_before_filtering = len(traces)
+    traces = list(filter(fn, traces))
+    filtered = traces_before_filtering - len(traces)
+    return traces, filtered
+
+
 def main():
     args = parser.parse_args()
 
@@ -39,8 +60,16 @@ def main():
         print('Parsing PyPy log file')
         traces = parse(f)
 
+        traces, filtered = filter_traces(prefilter_trace, traces)
+        if filtered:
+            print('Filtered {} traces'.format(filtered))
+
         print('Resolving code snippets')
         resolve_code_snippets(traces, search_paths)
+
+        traces, filtered = filter_traces(postfilter_trace, traces)
+        if filtered:
+            print('Filtered {} traces'.format(filtered))
 
         print('Rendering HTML output')
         html = render(traces)
