@@ -41,7 +41,9 @@ def highlight_snippet(snippet):
     return highlight(snippet, PythonLexer(), HtmlFormatter())
 
 
-def render_group(group, color_map, doc, tag, text, line):
+def render_group(trace, group, color_map, dttl):
+    doc, tag, text, line = dttl
+
     # Render the Python code snippet.
     bg_color = color_map[group[0].id]
     with tag('div', klass=bg_color):
@@ -60,16 +62,20 @@ def render_group(group, color_map, doc, tag, text, line):
         doc.asis(highlight_snippet(snippet))
 
 
-def render_indented_opcodes(groups, color_map, doc, tag, text, line):
+def render_indented_opcodes(trace, groups, color_map, dttl):
+    doc, tag, text, line = dttl
+
     for group in groups:
         if isinstance(group[0], list):
             with tag('div', klass='indented'):
-                render_indented_opcodes(group, color_map, doc, tag, text, line)
+                render_indented_opcodes(trace, group, color_map, dttl)
         else:
-            render_group(group, color_map, doc, tag, text, line)
+            render_group(trace, group, color_map, dttl)
 
 
-def render_ir(trace, color_map, doc, tag, text, line):
+def render_ir(trace, color_map, dttl):
+    doc, tag, text, line = dttl
+
     groups = group_ir(trace.raw_ir)
     kwargs = {}
 
@@ -103,8 +109,9 @@ def render_ir(trace, color_map, doc, tag, text, line):
         if opcode:
             kwargs['klass'] = color_map[opcode.id]
 
+def render_trace(trace, dttl):
+    doc, tag, text, line = dttl
 
-def render_trace(trace, doc, tag, text, line):
     if not trace.opcodes:
         line('div', 'No opcodes found in trace.', klass='gray')
         return
@@ -119,22 +126,21 @@ def render_trace(trace, doc, tag, text, line):
 
     with tag('div', klass='trace'):
         with tag('div', klass='code'):
-            render_indented_opcodes(groups, color_map, doc, tag, text, line)
+            render_indented_opcodes(trace, groups, color_map, dttl)
 
         with tag('div', klass='ir'):
-            render_ir(trace, color_map, doc, tag, text, line)
+            render_ir(trace, color_map, dttl)
 
 
 def render(logs):
     assert logs
 
-    doc, tag, text, line = Doc().ttl()
+    doc, tag, text, line = dttl = Doc().ttl()
 
     with tag('div', klass='traces'):
         for i, trace in enumerate(logs):
             line('h2', 'Trace #' + str(i + 1))
-
-            render_trace(trace, doc, tag, text, line)
+            render_trace(trace, dttl)
 
     html = doc.getvalue()
 
