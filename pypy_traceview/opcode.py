@@ -27,7 +27,18 @@ class Opcode:
         self.is_call = self.name in ['CALL_FUNCTION', 'CALL_METHOD']
 
     def __repr__(self):
-        return '<Opcode "{}">'.format(self.name)
+        return '<Opcode "{}-{}~#{} {}">'.format(self.func_line, self.code_line,
+                                                self.id, self.name)
+
+    def __eq__(self, other):
+        return self.id == other.id \
+                and self.func_line == other.func_line \
+                and self.code_line == other.code_line \
+                and self.name == other.name \
+                and self.method == other.method \
+                and self.filename == other.filename \
+                and self.snippet == other.snippet \
+                and self.method_snippet == other.method_snippet
 
 
 def count_opcodes(opcodes):

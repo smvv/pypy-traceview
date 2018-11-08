@@ -54,6 +54,10 @@ def test_group_basic_opcodes():
     assert len(groups) == 5
 
 
+def test_opcode_representation():
+    assert repr(Opcode("5-7~#19 FOR_ITER")) == '<Opcode "5-7~#19 FOR_ITER">'
+
+
 def test_indent_basic_opcodes():
     # This test expects the following indentation of opcodes:
     #
