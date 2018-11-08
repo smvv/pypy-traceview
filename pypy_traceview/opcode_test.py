@@ -100,6 +100,45 @@ def test_indent_basic_opcodes():
     assert function_body[-1].name == 'RETURN_VALUE'
 
 
+"""
+advanced_opcodes = [
+    Opcode("935-935~#34 POP_TOP"),
+    Opcode("935-935~#35 JUMP_ABSOLUTE"),
+    Opcode("935-935~#3 FOR_ITER"),
+    Opcode("935-935~#6 STORE_FAST"),
+    Opcode("935-935~#9 LOAD_GLOBAL"),
+    Opcode("935-935~#12 LOAD_FAST"),
+    Opcode("935-935~#15 LOAD_GLOBAL"),
+    Opcode("935-935~#18 CALL_FUNCTION"),
+    Opcode("935-935~#21 JUMP_IF_FALSE_OR_POP"),
+    Opcode("935-935~#24 LOAD_FAST"),
+    Opcode("935-935~#27 LOAD_GLOBAL"),
+    Opcode("935-935~#30 COMPARE_OP"),
+    Opcode("935-935~#33 YIELD_VALUE"),
+    Opcode("14-18~#10 STORE_FAST"),
+    Opcode("14-19~#13 LOAD_FAST"),
+    Opcode("14-19~#16 POP_JUMP_IF_FALSE"),
+    Opcode("14-20~#23 JUMP_ABSOLUTE"),
+    Opcode("14-18~#7 FOR_ITER"),
+    Opcode("935-935~#34 POP_TOP"),
+    Opcode("935-935~#35 JUMP_ABSOLUTE"),
+    Opcode("935-935~#3 FOR_ITER"),
+    Opcode("935-935~#38 LOAD_CONST"),
+    Opcode("935-935~#41 RETURN_VALUE"),
+    Opcode("14-20~#26 POP_BLOCK"),
+    Opcode("14-21~#27 LOAD_CONST"),
+    Opcode("14-21~#30 RETURN_VALUE"),
+]
+
+
+def test_indent_advanced_opcodes():
+    indented = indent_opcodes(advanced_opcodes)
+    dump_indentend_opcodes(indented)
+
+    assert len(indented) == 3
+"""
+
+
 def test_group_indented_basic_opcodes():
     # This test expects the following groups of indented opcodes:
     #

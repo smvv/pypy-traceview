@@ -94,6 +94,34 @@ def dump_indentend_opcodes(stack, indent=0):
             print('  ' * indent + str(children))
 
 
+def dump_opcodes(opcodes):
+    for opcode in opcodes:
+        print(opcode)
+
+
+def _push(stack, level):
+    level += 1
+    if len(stack) < level:
+        stack[level] = []
+    else:
+        stack.append([])
+    return level
+
+
+def _pop(stack, level):
+    children = stack[level]
+
+    if len(stack) == level + 1:
+        stack.pop()
+    else:
+        stack[level] = []
+
+    level -= 1
+    assert level >= 0
+    stack[level].append(children)
+    return level
+
+
 def indent_opcodes(opcodes):
     level = 0
     stack = [[]]
@@ -101,7 +129,9 @@ def indent_opcodes(opcodes):
 
     for opcode in opcodes:
         # Ignore second FOR_ITER opcode that marks end of for loop.
-        if opcode.name == 'FOR_ITER' and last and last.name == 'JUMP_ABSOLUTE':
+        if opcode.name == 'FOR_ITER' and level > 0 \
+                and opcode == stack[level - 1][0]:
+            level = _pop(stack, level)
             last = opcode
             continue
 
@@ -117,27 +147,12 @@ def indent_opcodes(opcodes):
         stack[level].append(opcode)
 
         if opcode.name == 'FOR_ITER' or opcode.is_call:
-            level += 1
-            if len(stack) < level:
-                stack[level] = []
-            else:
-                stack.append([])
-
+            level = _push(stack, level)
             last = opcode
             continue
 
-        if opcode.name == 'JUMP_ABSOLUTE' or opcode.name == 'RETURN_VALUE':
-            children = stack[level]
-
-            if len(stack) == level + 1:
-                stack.pop()
-            else:
-                stack[level] = []
-
-            level -= 1
-            assert level >= 0
-            stack[level].append(children)
-
+        if opcode.name == 'RETURN_VALUE':
+            level = _pop(stack, level)
             last = opcode
             continue
 
