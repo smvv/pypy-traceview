@@ -1,11 +1,13 @@
 """
 This file implements a state machine for parsing PYPYLOG output files.
 """
+import os
+
 from ..tracelog import TraceLog
 
 
 # Enable this flag to display verbose trace messages of the state machine.
-trace_parser = False
+trace_parser = os.getenv('TRACE_PARSER')
 
 
 def trace_step(fn):
