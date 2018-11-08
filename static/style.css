@@ -97,3 +97,8 @@ pre {
 .bg4 {
   background-color: #eaffec;
 }
+
+.trace a {
+  text-decoration: none;
+  color: #444;
+}

@@ -47,7 +47,8 @@ def render_group(trace, group, color_map, dttl):
     # Render the Python code snippet.
     bg_color = color_map[group[0].id]
     with tag('div', klass=bg_color):
-        doc.asis(highlight_snippet(group[0].snippet))
+        with tag('a', href='#t{}_o{}'.format(trace.id, group[0].id)):
+            doc.asis(highlight_snippet(group[0].snippet))
 
     # Render the opcodes corresponding to the code snippet.
     with tag('div', klass='opcodes'):
@@ -108,6 +109,10 @@ def render_ir(trace, color_map, dttl):
         # Set color for next group.
         if opcode:
             kwargs['klass'] = color_map[opcode.id]
+            kwargs['id'] = 't{}_o{}'.format(trace.id, opcode.id)
+        elif 'id' in kwargs:
+            del kwargs['id']
+
 
 def render_trace(trace, dttl):
     doc, tag, text, line = dttl
@@ -138,8 +143,8 @@ def render(logs):
     doc, tag, text, line = dttl = Doc().ttl()
 
     with tag('div', klass='traces'):
-        for i, trace in enumerate(logs):
-            line('h2', 'Trace #' + str(i + 1))
+        for trace in logs:
+            line('h2', 'Trace #{}'.format(trace.id))
             render_trace(trace, dttl)
 
     html = doc.getvalue()
