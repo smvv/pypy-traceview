@@ -4,7 +4,7 @@ from yattag import Doc
 from jinja2 import Template
 
 from pygments import highlight
-from pygments.lexers import PythonLexer, ObjdumpLexer
+from pygments.lexers import PythonLexer, NasmObjdumpLexer
 from pygments.formatters import HtmlFormatter
 
 from ..opcode import group_opcodes, indent_opcodes, Opcode
@@ -45,7 +45,7 @@ def highlight_snippet(snippet):
 
 @memoized
 def highlight_machine_code(snippet):
-    return highlight(snippet, ObjdumpLexer(), HtmlFormatter())
+    return highlight(snippet, NasmObjdumpLexer(), HtmlFormatter())
 
 
 def render_group(trace, group, color_map, dttl):

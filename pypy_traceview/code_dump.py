@@ -114,6 +114,7 @@ def resolve_code_dump(lines):
         flags = [
             '-b', 'binary',
             '-m', machine,
+            '--disassembler-options=intel-mnemonics',
             '-D',
         ]
 

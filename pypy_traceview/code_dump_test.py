@@ -14,8 +14,8 @@ def test_basic_code_dump():
 
     # Check if the code disassembles to 'adc (%rdx),%al'
     assert 'adc ' in dump.code[0]
-    assert '%rdx' in dump.code[0]
-    assert '%al' in dump.code[0]
+    assert 'rdx' in dump.code[0]
+    assert 'al' in dump.code[0]
 
     assert dump.address == 0x10c4bd023
     assert dump.offset == 0
