@@ -58,3 +58,27 @@ def test_simple_add_mod_loop():
         assert len(log.code_dumps) == 16
         assert isinstance(log.code_dumps[0], list)
         assert log.code_dumps[0][0] == 'BACKEND x86_64'
+
+
+def test_parse_mangled_jit_tracing():
+    testcase = """
+[dc7da3166a65] {jit-tracing
+add;add.py:1-2~#0 LOAD_FAST
+add;add.py:1-2~#3 LOAD_FAST
+[a58624f8637c] {jit-backend-dump
+BACKEND x86_64
+SYS_EXECUTABLE /usr/bin/python
+CODE_DUMP @102a928a0 +0  00
+[a58624f898f5] jit-backend-dump}
+add;add.py:1-2~#6 BINARY_ADD
+add;add.py:1-2~#7 RETURN_VALUE
+[dc7da3979cad] jit-tracing}
+    """.strip().split('\n')
+
+    logs = parse(testcase)
+    assert len(logs) == 1
+
+    log = logs[0]
+    assert len(log.raw_opcodes) == 4
+    assert log.raw_opcodes[0] == 'add;add.py:1-2~#0 LOAD_FAST'
+    assert log.raw_opcodes[3] == 'add;add.py:1-2~#7 RETURN_VALUE'

@@ -77,6 +77,14 @@ def is_jit_log_short_preamble_end(line):
     return line.endswith('jit-log-short-preamble}')
 
 
+def is_jit_log_rewritten_loop_start(line):
+    return line.endswith('{jit-log-rewritten-loop')
+
+
+def is_jit_log_rewritten_loop_end(line):
+    return line.endswith('jit-log-rewritten-loop}')
+
+
 def is_jit_log_opt_bridge_start(line):
     return line.endswith('{jit-log-opt-bridge')
 
@@ -174,6 +182,14 @@ def parse_jit_log_short_preamble(line, state):
 
 
 @trace_step
+def parse_jit_log_rewritten_loop(line, state):
+    if is_jit_log_rewritten_loop_end(line):
+        return parse_jit_tracing_start
+
+    return parse_jit_log_rewritten_loop
+
+
+@trace_step
 def parse_jit_log_opt_bridge(line, start):
     if is_jit_log_opt_bridge_end(line):
         return parse_jit_tracing_start
@@ -216,7 +232,7 @@ def parse_jit_backend_dump(line, state):
     if is_jit_backend_dump_end(line):
         state['log'].code_dumps.append(state['backend_dump'])
         del state['backend_dump']
-        return parse_jit_backend
+        return parse_jit_tracing_start
 
     if 'backend_dump' not in state:
         state['backend_dump'] = []
@@ -266,6 +282,9 @@ def parse_jit_tracing_start(line, state):
 
     if is_jit_backend_addr_start(line):
         return parse_jit_backend_addr
+
+    if is_jit_log_rewritten_loop_start(line):
+        return parse_jit_log_rewritten_loop
 
     if is_jit_log_short_preamble_start(line):
         return parse_jit_log_short_preamble
