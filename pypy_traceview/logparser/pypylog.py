@@ -264,12 +264,6 @@ def parse_jit_tracing_start(line, state):
     if is_jit_optimize_start(line):
         return parse_jit_optimize
 
-    if is_jit_backend_start(line):
-        return parse_jit_backend
-
-    if is_jit_backend_dump_start(line):
-        return parse_jit_backend_dump
-
     if is_jit_backend_addr_start(line):
         return parse_jit_backend_addr
 
@@ -288,6 +282,12 @@ def parse_jit_tracing_start(line, state):
     # Start a new trace log
     if not state['log']:
         state['log'] = TraceLog()
+
+    if is_jit_backend_start(line):
+        return parse_jit_backend
+
+    if is_jit_backend_dump_start(line):
+        return parse_jit_backend_dump
 
     if is_jit_starting(line):
         return parse_jit_starting
