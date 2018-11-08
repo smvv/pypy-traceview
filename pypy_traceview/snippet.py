@@ -4,9 +4,12 @@ from .memoization import memoized
 
 @memoized
 def find_file(filename, path):
-        source_file = Path(path).joinpath(filename)
-        if source_file.is_file():
-            return source_file
+    if filename[0] == '/':
+        return filename
+
+    source_file = Path(path).joinpath(filename)
+    if source_file.is_file():
+        return source_file
 
 
 @memoized
@@ -29,9 +32,11 @@ def resolve_code_snippets(traces, search_paths):
                 if filename:
                     break
 
-            snippet = '# Source file not found'
             if filename:
                 snippet = find_snippet(filename, opcode.code_line)
+            else:
+                not_found_msg = '# Source file "{}" not found'
+                snippet = not_found_msg.format(opcode.filename)
 
             opcode.snippet = snippet
 
