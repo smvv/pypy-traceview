@@ -21,11 +21,15 @@ class TraceLog:
         opcodes = []
 
         for line in self.raw_opcodes:
-            method, line = line.split(';')
-            methods.add(method)
+            try:
+                method, line = line.split(';')
+                methods.add(method)
 
-            filename, line = line.split(':')
-            files.add(filename)
+                filename, line = line.split(':')
+                files.add(filename)
+            except ValueError as e:
+                print(line)
+                raise e
 
             opcodes.append(Opcode(line, method=method, filename=filename))
 
