@@ -4,7 +4,6 @@ body {
   color: #444;
 
   margin: 0 auto;
-  max-width: 1200px;
   padding: 0 1em 1em;
 }
 
@@ -57,7 +56,8 @@ pre {
 }
 
 .trace .code,
-.trace .ir {
+.trace .ir,
+.trace .mc {
   flex-basis: 0;
   flex-grow: 1;
   max-height: 700px;
@@ -70,10 +70,16 @@ pre {
 }
 .trace .ir {
   margin-left: 10px;
+  margin-right: 10px;
+}
+
+.trace .mc {
+  margin-left: 10px;
 }
 
 .highlight pre {
   white-space: pre-wrap;
+  word-break: break-all;
 }
 
 /* Simple color palette for different code/ir lines */

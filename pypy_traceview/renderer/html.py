@@ -1,8 +1,10 @@
+import re
+
 from yattag import Doc
 from jinja2 import Template
 
 from pygments import highlight
-from pygments.lexers import PythonLexer
+from pygments.lexers import PythonLexer, ObjdumpLexer
 from pygments.formatters import HtmlFormatter
 
 from ..opcode import group_opcodes, indent_opcodes, Opcode
@@ -39,6 +41,11 @@ def build_color_map(opcodes):
 @memoized
 def highlight_snippet(snippet):
     return highlight(snippet, PythonLexer(), HtmlFormatter())
+
+
+@memoized
+def highlight_machine_code(snippet):
+    return highlight(snippet, ObjdumpLexer(), HtmlFormatter())
 
 
 def render_group(trace, group, color_map, dttl):
@@ -114,6 +121,29 @@ def render_ir(trace, color_map, dttl):
             del kwargs['id']
 
 
+def hide_raw_instruction_bytes(code):
+    # It would be preferable to hide the raw instruction bytes using objdump's
+    # flag --no-show-raw-insn when disassembling the machine code. However,
+    # pygments fails to highlight the output when that flag is given.
+    code = re.sub(r'>[\t ]+<span class="mh">[^<]*</span>(?:(\n)|[\t ]+)',
+                  '> \\1', code)
+    return code
+
+
+def render_machine_code(trace, color_map, dttl):
+    doc, tag, text, line = dttl
+
+    # Only display the first code dump. The others are not relevant.
+    for dump in trace.code_dumps[:1]:
+        kwargs = {'class': 'objdump'}
+
+        with tag('div', **kwargs):
+            code = '\n'.join(dump.code)
+            code = highlight_machine_code(code)
+            code = hide_raw_instruction_bytes(code)
+            doc.asis(code)
+
+
 def render_trace(trace, dttl):
     doc, tag, text, line = dttl
 
@@ -138,6 +168,9 @@ def render_trace(trace, dttl):
 
         with tag('div', klass='ir'):
             render_ir(trace, color_map, dttl)
+
+        with tag('div', klass='mc'):
+            render_machine_code(trace, color_map, dttl)
 
 
 def render(logs):
