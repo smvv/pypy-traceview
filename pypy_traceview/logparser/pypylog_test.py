@@ -54,3 +54,7 @@ def test_simple_add_mod_loop():
         assert len(log.raw_ir) == 140
         assert '# Loop' in log.raw_ir[0]
         assert '--end of the loop--' in log.raw_ir[-1]
+
+        assert len(log.code_dumps) == 16
+        assert isinstance(log.code_dumps[0], list)
+        assert log.code_dumps[0][0] == 'BACKEND x86_64'

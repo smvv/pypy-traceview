@@ -200,13 +200,26 @@ def parse_jit_backend(line, state):
     if is_jit_backend_end(line):
         return parse_jit_tracing_start
 
+    if is_jit_backend_dump_start(line):
+        return parse_jit_backend_dump
+
+    if is_jit_backend_addr_start(line):
+        return parse_jit_backend_addr
+
     return parse_jit_backend
 
 
 @trace_step
 def parse_jit_backend_dump(line, state):
     if is_jit_backend_dump_end(line):
-        return parse_jit_tracing_start
+        state['log'].code_dumps.append(state['backend_dump'])
+        del state['backend_dump']
+        return parse_jit_backend
+
+    if 'backend_dump' not in state:
+        state['backend_dump'] = []
+
+    state['backend_dump'].append(line)
 
     return parse_jit_backend_dump
 

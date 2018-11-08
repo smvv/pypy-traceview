@@ -13,6 +13,8 @@ class TraceLog:
         self._methods = []
         self._opcodes = []
 
+        self.code_dumps = []
+
     def _parse_opcodes(self):
         files = set()
         methods = set()
