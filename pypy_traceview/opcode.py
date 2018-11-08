@@ -25,6 +25,11 @@ class Opcode:
 
     def _init_opcode_flags(self):
         self.is_call = self.name in ['CALL_FUNCTION', 'CALL_METHOD']
+        self.is_return = self.name in ['RETURN_VALUE']
+        self.is_yield = self.name in ['YIELD_VALUE']
+        self.is_for = self.name in ['FOR_ITER']
+        self.is_pop_block = self.name in ['POP_BLOCK']
+        self.is_setup_except = self.name in ['SETUP_EXCEPT']
 
     def __repr__(self):
         return '<Opcode "{}-{}~#{} {}">'.format(self.func_line, self.code_line,
@@ -129,8 +134,7 @@ def indent_opcodes(opcodes):
 
     for opcode in opcodes:
         # Ignore second FOR_ITER opcode that marks end of for loop.
-        if opcode.name == 'FOR_ITER' and level > 0 \
-                and opcode == stack[level - 1][0]:
+        if opcode.is_for and level > 0 and opcode == stack[level - 1][0]:
             level = _pop(stack, level)
             last = opcode
             continue
@@ -138,7 +142,7 @@ def indent_opcodes(opcodes):
         # Move opcode STORE_FAST after a FOR_ITER into the FOR_ITER scope. This
         # avoids having the same "for i in ..." code snippet inside the loop
         # block.
-        if opcode.name == 'STORE_FAST' and last and last.name == 'FOR_ITER':
+        if opcode.name == 'STORE_FAST' and last and last.is_for:
             assert level > 0
             stack[level - 1].append(opcode)
             last = opcode
@@ -146,7 +150,7 @@ def indent_opcodes(opcodes):
 
         stack[level].append(opcode)
 
-        if opcode.name == 'FOR_ITER' or opcode.is_call:
+        if opcode.is_for or opcode.is_call or opcode.is_setup_except:
             level = _push(stack, level)
             last = opcode
             continue
@@ -154,7 +158,8 @@ def indent_opcodes(opcodes):
         # Only pop the stack when the RETURN_VALUE opcode has a non-zero level.
         # Note that it is possible that the trace returns a value to its
         # caller, without function call inside the trace.
-        if opcode.name == 'RETURN_VALUE' and level:
+        if (opcode.is_return and level) \
+                or (opcode.is_yield or opcode.is_pop_block):
             level = _pop(stack, level)
             last = opcode
             continue
