@@ -100,6 +100,32 @@ def test_indent_basic_opcodes():
     assert function_body[-1].name == 'RETURN_VALUE'
 
 
+trace_with_return_opcodes = [
+    Opcode("22-23~#0 LOAD_FAST"),
+    Opcode("22-23~#3 LOAD_CONST"),
+    Opcode("22-23~#6 COMPARE_OP"),
+    Opcode("22-23~#9 POP_JUMP_IF_FALSE"),
+    Opcode("22-25~#16 LOAD_FAST"),
+    Opcode("22-25~#19 LOAD_ATTR"),
+    Opcode("22-25~#22 LOAD_CONST"),
+    Opcode("22-25~#25 COMPARE_OP"),
+    Opcode("22-25~#28 POP_JUMP_IF_FALSE"),
+    Opcode("22-26~#31 LOAD_FAST"),
+    Opcode("22-26~#34 LOAD_ATTR"),
+    Opcode("22-26~#37 LOAD_FAST"),
+    Opcode("22-26~#40 LOAD_ATTR"),
+    Opcode("22-26~#43 BINARY_SUBSCR"),
+    Opcode("22-26~#44 RETURN_VALUE"),
+]
+
+
+def test_indent_trace_with_return():
+    indented = indent_opcodes(trace_with_return_opcodes)
+    dump_indentend_opcodes(indented)
+
+    assert len(indented) == 15
+
+
 """
 advanced_opcodes = [
     Opcode("935-935~#34 POP_TOP"),

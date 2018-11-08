@@ -151,7 +151,10 @@ def indent_opcodes(opcodes):
             last = opcode
             continue
 
-        if opcode.name == 'RETURN_VALUE':
+        # Only pop the stack when the RETURN_VALUE opcode has a non-zero level.
+        # Note that it is possible that the trace returns a value to its
+        # caller, without function call inside the trace.
+        if opcode.name == 'RETURN_VALUE' and level:
             level = _pop(stack, level)
             last = opcode
             continue
