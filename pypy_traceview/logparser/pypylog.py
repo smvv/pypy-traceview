@@ -333,4 +333,9 @@ def parse(logfile):
 
     assert fn == parse_start
 
-    return state['logs']
+    logs = state['logs']
+
+    for i, log in enumerate(logs):
+        log.id = i + 1
+
+    return logs

@@ -3,6 +3,9 @@ from .opcode import Opcode
 
 class TraceLog:
     def __init__(self):
+        # Id is set during `pypylog.parse()`.
+        self.id = None
+
         self.raw_opcodes = []
         self.raw_ir = []
 
