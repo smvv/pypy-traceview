@@ -62,14 +62,16 @@ def main():
 
         traces, filtered = filter_traces(prefilter_trace, traces)
         if filtered:
-            print('Filtered {} traces'.format(filtered))
+            msg = 'Filtered {} traces (remaining: {})'
+            print(msg.format(filtered, len(traces)))
 
         print('Resolving code snippets')
         resolve_code_snippets(traces, search_paths)
 
         traces, filtered = filter_traces(postfilter_trace, traces)
         if filtered:
-            print('Filtered {} traces'.format(filtered))
+            msg = 'Filtered {} traces (remaining: {})'
+            print(msg.format(filtered, len(traces)))
 
         print('Rendering HTML output')
         html = render(traces)
