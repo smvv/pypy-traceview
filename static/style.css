@@ -61,6 +61,8 @@ pre {
   flex-basis: 0;
   flex-grow: 1;
   max-height: 700px;
+  max-width: 700px;
+  overflow: scroll;
 }
 
 .trace .code {
@@ -68,8 +70,6 @@ pre {
 }
 .trace .ir {
   margin-left: 10px;
-  max-width: 700px;
-  overflow: scroll;
 }
 
 .highlight pre {
