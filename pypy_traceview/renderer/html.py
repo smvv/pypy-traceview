@@ -4,7 +4,8 @@ from yattag import Doc
 from jinja2 import Template
 
 from pygments import highlight
-from pygments.lexers import PythonLexer, NasmObjdumpLexer
+from pygments.lexers import PythonLexer, NasmLexer
+from pygments.token import Comment
 from pygments.formatters import HtmlFormatter
 
 from ..opcode import group_opcodes, indent_opcodes, Opcode
@@ -13,6 +14,17 @@ from ..memoization import memoized
 
 
 BG_COLORS = ['bg1', 'bg2', 'bg3', 'bg4']
+
+
+# Add a patched NasmLexer that support leading (hexadecimal) offsets.The
+# offsets are added by objdump to make it easier to see where jumps are
+# refering to.
+class PatchedNasmLexer(NasmLexer):
+    pass
+
+
+PatchedNasmLexer.tokens['root'].append((r'[0-9a-f]+:', Comment.Single))
+PatchedNasmLexer.tokens['whitespace'].append((r'#[^\n]*\n', Comment))
 
 
 def iter_opcodes(opcodes):
@@ -45,7 +57,7 @@ def highlight_snippet(snippet):
 
 @memoized
 def highlight_machine_code(snippet):
-    return highlight(snippet, NasmObjdumpLexer(), HtmlFormatter())
+    return highlight(snippet, PatchedNasmLexer(), HtmlFormatter())
 
 
 def render_group(trace, group, color_map, dttl):
@@ -121,15 +133,6 @@ def render_ir(trace, color_map, dttl):
             del kwargs['id']
 
 
-def hide_raw_instruction_bytes(code):
-    # It would be preferable to hide the raw instruction bytes using objdump's
-    # flag --no-show-raw-insn when disassembling the machine code. However,
-    # pygments fails to highlight the output when that flag is given.
-    code = re.sub(r'>[\t ]+<span class="mh">[^<]*</span>(?:(\n)|[\t ]+)',
-                  '> \\1', code)
-    return code
-
-
 def render_machine_code(trace, color_map, dttl):
     doc, tag, text, line = dttl
 
@@ -140,7 +143,6 @@ def render_machine_code(trace, color_map, dttl):
         with tag('div', **kwargs):
             code = '\n'.join(dump.code)
             code = highlight_machine_code(code)
-            code = hide_raw_instruction_bytes(code)
             doc.asis(code)
 
 

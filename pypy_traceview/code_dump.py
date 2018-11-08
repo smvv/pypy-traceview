@@ -94,10 +94,18 @@ def disassemble_machine_code(objdump, flags, filename):
     assert p.returncode == 0
     assert not p.stderr
 
-    lines = p.stdout.decode('utf-8').splitlines()
+    output = p.stdout.decode('utf-8')
+
+    # Remove leading whitespace from lines
+    output = output.replace('\n  ', '\n')
+    output = output.replace('\t', '  ')
+
+    lines = output.splitlines()
 
     # Strip objdump header from output
-    return lines[7:]
+    lines = lines[7:]
+
+    return lines
 
 
 def resolve_code_dump(lines):
@@ -114,6 +122,7 @@ def resolve_code_dump(lines):
         flags = [
             '-b', 'binary',
             '-m', machine,
+            '--no-show-raw-insn',
             '--disassembler-options=intel-mnemonics',
             '-D',
         ]
