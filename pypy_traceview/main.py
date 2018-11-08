@@ -8,6 +8,7 @@ from pathlib import Path
 
 from pypy_traceview.logparser.pypylog import parse
 from pypy_traceview.snippet import resolve_code_snippets
+from pypy_traceview.code_dump import resolve_code_dumps
 from pypy_traceview.renderer.html import render
 
 description = 'Convert PyPy JIT log file to HTML.'
@@ -72,6 +73,9 @@ def main():
         if filtered:
             msg = 'Filtered {} traces (remaining: {})'
             print(msg.format(filtered, len(traces)))
+
+        print('Resolving code dumps')
+        resolve_code_dumps(traces)
 
         print('Rendering HTML output')
         html = render(traces)
