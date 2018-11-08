@@ -125,8 +125,8 @@ def render_trace(trace, dttl):
     try:
         indented = indent_opcodes(trace.opcodes)
     except AssertionError as e:
+        print('failed to indent opcodes of trace ID', trace.id)
         indented = trace.opcodes
-        print('failed to indent:', e)
 
     groups = group_opcodes(indented)
 
