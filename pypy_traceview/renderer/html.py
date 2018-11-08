@@ -124,7 +124,14 @@ def render_trace(trace, dttl):
     with tag('a', href='#', onclick='toggleOpcodes(event)'):
         text('Toggle opcodes')
 
-    indented = indent_opcodes(trace.opcodes)
+    # Try to indent the opcodes. On indentation failure, return a flat list of
+    # the opcodes.
+    try:
+        indented = indent_opcodes(trace.opcodes)
+    except AssertionError as e:
+        indented = trace.opcodes
+        print('failed to indent:', e)
+
     groups = group_opcodes(indented)
 
     color_map = build_color_map(groups)
