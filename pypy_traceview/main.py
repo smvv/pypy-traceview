@@ -1,28 +1,15 @@
 #!/usr/bin/env python
-import argparse
 import io
 import cProfile
 import pstats
 
 from pathlib import Path
 
+from pypy_traceview.args import parser
 from pypy_traceview.logparser.pypylog import parse
 from pypy_traceview.snippet import resolve_code_snippets
 from pypy_traceview.code_dump import resolve_code_dumps
 from pypy_traceview.renderer.html import render
-
-description = 'Convert PyPy JIT log file to HTML.'
-
-parser = argparse.ArgumentParser(description=description)
-
-parser.add_argument('file', metavar='FILE', type=str,
-                    help='PyPy JIT log filename')
-
-parser.add_argument('--output', '-o', type=str, default='output.html',
-                    help='HTML output filename (default: output.html)')
-
-parser.add_argument('--profile', action='store_true',
-                    help='Dump CPU profiler info')
 
 
 def prefilter_trace(trace):
@@ -75,7 +62,7 @@ def main():
             print(msg.format(filtered, len(traces)))
 
         print('Resolving code dumps')
-        resolve_code_dumps(traces)
+        resolve_code_dumps(args, traces)
 
         print('Rendering HTML output')
         html = render(traces)

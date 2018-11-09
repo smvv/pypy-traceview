@@ -1,4 +1,5 @@
 from .code_dump import resolve_code_dump
+from .args import FakeArgs
 
 basic_code_dump = """
 BACKEND x86_64
@@ -8,7 +9,7 @@ CODE_DUMP @10c4bd023 +0  12020000
 
 
 def test_basic_code_dump():
-    dump = resolve_code_dump(basic_code_dump)
+    dump = resolve_code_dump(FakeArgs(), basic_code_dump)
     assert dump.backend_name == 'x86_64'
     assert dump.executable == '/path/to/bin/python'
 

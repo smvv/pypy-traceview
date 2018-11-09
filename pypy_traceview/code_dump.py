@@ -108,31 +108,37 @@ def disassemble_machine_code(objdump, flags, filename):
     return lines
 
 
-def resolve_code_dump(lines):
+def resolve_code_dump(args, lines):
     objdump = find_objdump()
 
     dump = CodeDump(lines)
 
     machine = objdump_machine_option[dump.backend_name]
+    code = bytes.fromhex(dump.code)
 
     with tempfile.NamedTemporaryFile() as f:
-        f.write(bytes.fromhex(dump.code))
+        f.write(code)
         f.flush()
 
         flags = [
             '-b', 'binary',
             '-m', machine,
             '--no-show-raw-insn',
-            '--disassembler-options=intel-mnemonics',
             '-D',
         ]
+
+        if args.mnemonics == 'intel':
+            flags.append('--disassembler-options=intel-mnemonics')
 
         dump.code = disassemble_machine_code(objdump, flags, f.name)
 
     return dump
 
 
-def resolve_code_dumps(traces):
+def resolve_code_dumps(args, traces):
     for trace in traces:
         # Only display the first code dump. The others are not relevant.
-        trace.code_dumps = list(map(resolve_code_dump, trace.code_dumps[:1]))
+        trace.code_dumps = [
+            resolve_code_dump(args, dump)
+            for dump in trace.code_dumps[:1]
+        ]
