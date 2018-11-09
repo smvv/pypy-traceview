@@ -134,8 +134,7 @@ def render_ir(trace, color_map, dttl):
 def render_machine_code(trace, color_map, dttl):
     doc, tag, text, line = dttl
 
-    # Only display the first code dump. The others are not relevant.
-    for dump in trace.code_dumps[:1]:
+    for dump in trace.code_dumps:
         kwargs = {'class': 'objdump'}
 
         with tag('div', **kwargs):

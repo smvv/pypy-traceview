@@ -134,4 +134,5 @@ def resolve_code_dump(lines):
 
 def resolve_code_dumps(traces):
     for trace in traces:
-        trace.code_dumps = list(map(resolve_code_dump, trace.code_dumps))
+        # Only display the first code dump. The others are not relevant.
+        trace.code_dumps = list(map(resolve_code_dump, trace.code_dumps[:1]))
