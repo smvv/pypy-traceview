@@ -1,5 +1,3 @@
-import re
-
 from yattag import Doc
 from jinja2 import Template
 
