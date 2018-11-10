@@ -95,11 +95,6 @@ def disassemble_machine_code(objdump, flags, filename):
     assert not p.stderr
 
     output = p.stdout.decode('utf-8')
-
-    # Remove leading whitespace from lines
-    output = output.replace('\n  ', '\n')
-    output = output.replace('\t', '  ')
-
     lines = output.splitlines()
 
     # Strip objdump header from output
