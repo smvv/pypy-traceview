@@ -108,16 +108,48 @@ def disassemble_machine_code(objdump, flags, filename):
     return lines
 
 
+def determine_maximum_offset_text_width(lines):
+    # Find the last line with a colon in it.
+    for i in range(1, len(lines) + 1):
+        last_line = lines[-i]
+        if ':' in last_line:
+            break
+
+    assert ':' in last_line, last_line
+
+    # Split the offset from the content and compute its maximum string length.
+    offset, _ = last_line.split(':', 1)
+    offset = int(offset.strip(), 16)
+    return len(str(offset))
+
+
+def convert_offsets_to_digits(lines):
+    max_width = determine_maximum_offset_text_width(lines)
+
+    for i, line in enumerate(lines):
+        parts = line.split(':', 1)
+
+        if len(parts) < 2:
+            continue
+
+        offset, content = parts
+        offset = int(offset.strip(), 16)
+
+        lines[i] = ('{:' + str(max_width) + 'd}: {}').format(offset, content)
+
+    return lines
+
+
 def resolve_code_dump(args, lines):
     objdump = find_objdump()
 
     dump = CodeDump(lines)
 
     machine = objdump_machine_option[dump.backend_name]
-    code = bytes.fromhex(dump.code)
+    machine_code = bytes.fromhex(dump.code)
 
     with tempfile.NamedTemporaryFile() as f:
-        f.write(code)
+        f.write(machine_code)
         f.flush()
 
         flags = [
@@ -130,7 +162,11 @@ def resolve_code_dump(args, lines):
         if args.mnemonics == 'intel':
             flags.append('--disassembler-options=intel-mnemonics')
 
-        dump.code = disassemble_machine_code(objdump, flags, f.name)
+        code = disassemble_machine_code(objdump, flags, f.name)
+
+        code = convert_offsets_to_digits(code)
+
+        dump.code = code
 
     return dump
 
