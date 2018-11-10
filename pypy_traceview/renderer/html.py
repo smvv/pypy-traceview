@@ -2,7 +2,7 @@ from yattag import Doc
 from jinja2 import Template
 
 from pygments import highlight
-from pygments.lexers import PythonLexer, NasmLexer
+from pygments.lexers import PythonLexer, NasmLexer, GasLexer
 from pygments.token import Comment
 from pygments.formatters import HtmlFormatter
 
@@ -14,15 +14,20 @@ from ..memoization import memoized
 BG_COLORS = ['bg1', 'bg2', 'bg3', 'bg4']
 
 
-# Add a patched NasmLexer that support leading (hexadecimal) offsets.The
-# offsets are added by objdump to make it easier to see where jumps are
-# refering to.
+# Add a patched NasmLexer and GasLexer that support leading (hexadecimal)
+# offsets. The offsets are added by objdump to make it easier to see where
+# jumps are refering to.
 class PatchedNasmLexer(NasmLexer):
     pass
 
 
-PatchedNasmLexer.tokens['root'].append((r'[0-9a-f]+:', Comment.Single))
-PatchedNasmLexer.tokens['whitespace'].append((r'#[^\n]*\n', Comment))
+class PatchedGasLexer(GasLexer):
+    pass
+
+
+for cls in [PatchedNasmLexer, PatchedGasLexer]:
+    cls.tokens['root'].append((r'[0-9a-f]+:', Comment.Single))
+    cls.tokens['whitespace'].append((r'#[^\n]*\n', Comment))
 
 
 def iter_opcodes(opcodes):
@@ -54,8 +59,12 @@ def highlight_snippet(snippet):
 
 
 @memoized
-def highlight_machine_code(snippet):
-    return highlight(snippet, PatchedNasmLexer(), HtmlFormatter())
+def highlight_machine_code(mnemonics, snippet):
+    lexer = PatchedGasLexer
+    if mnemonics == 'intel':
+        lexer = PatchedNasmLexer
+
+    return highlight(snippet, lexer(), HtmlFormatter())
 
 
 def render_group(trace, group, color_map, dttl):
@@ -131,7 +140,7 @@ def render_ir(trace, color_map, dttl):
             del kwargs['id']
 
 
-def render_machine_code(trace, color_map, dttl):
+def render_machine_code(args, trace, color_map, dttl):
     doc, tag, text, line = dttl
 
     for dump in trace.code_dumps:
@@ -139,11 +148,11 @@ def render_machine_code(trace, color_map, dttl):
 
         with tag('div', **kwargs):
             code = '\n'.join(dump.code)
-            code = highlight_machine_code(code)
+            code = highlight_machine_code(args.mnemonics, code)
             doc.asis(code)
 
 
-def render_trace(trace, dttl):
+def render_trace(args, trace, dttl):
     doc, tag, text, line = dttl
 
     with tag('a', href='#', onclick='toggleOpcodes(event)'):
@@ -169,10 +178,10 @@ def render_trace(trace, dttl):
             render_ir(trace, color_map, dttl)
 
         with tag('div', klass='mc'):
-            render_machine_code(trace, color_map, dttl)
+            render_machine_code(args, trace, color_map, dttl)
 
 
-def render(logs):
+def render(args, logs):
     assert logs
 
     doc, tag, text, line = dttl = Doc().ttl()
@@ -180,7 +189,7 @@ def render(logs):
     with tag('div', klass='traces'):
         for trace in logs:
             line('h2', 'Trace #{}'.format(trace.id))
-            render_trace(trace, dttl)
+            render_trace(args, trace, dttl)
 
     html = doc.getvalue()
 

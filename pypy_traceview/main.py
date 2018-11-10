@@ -65,7 +65,7 @@ def main():
         resolve_code_dumps(args, traces)
 
         print('Rendering HTML output')
-        html = render(traces)
+        html = render(args, traces)
 
     with open(args.output, 'w') as f:
         print('Writing to HTML output file: {}'.format(args.output))

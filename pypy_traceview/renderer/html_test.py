@@ -8,8 +8,9 @@ from .html import render
 def test_render():
     with open('testcases/simple-add-mod-loop/add.log') as f:
         search_paths = ['testcases/simple-add-mod-loop']
+        args = FakeArgs()
         traces = parse(f)
         resolve_code_snippets(traces, search_paths)
-        resolve_code_dumps(FakeArgs(), traces)
-        html = render(traces)
+        resolve_code_dumps(args, traces)
+        html = render(args, traces)
         assert html
