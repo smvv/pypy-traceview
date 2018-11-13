@@ -45,3 +45,30 @@ browser, and you will see the following:
 The left panel shows one-line Python code snippets and the matching Python
 bytecode. The middle panel shows RPython IR, and the right panel shows assembly
 output. Clicking on a Python code snippet will jump to the matching RPython IR.
+
+## Other options
+
+Using `--help`, it is possble to show the customization options:
+
+```bash
+$ PYTHONPATH=. pipenv run ./pypy-traceview --help
+usage: pypy-traceview [-h] [--output OUTPUT] [--profile]
+                      [--mnemonics MNEMONICS]
+                      FILE
+
+Convert PyPy JIT log file to HTML.
+
+positional arguments:
+  FILE                  PyPy JIT log filename
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --output OUTPUT, -o OUTPUT
+                        HTML output filename (default: output.html)
+  --profile             Dump CPU profiler info
+  --mnemonics MNEMONICS
+                        Disassemble using "intel" or "att" (default) syntax
+```
+
+Note: the flag `--profile` is for internal use. It profiles the tool and dumps
+a textual representation of where CPU time is spent on stdout.
